@@ -1,0 +1,32 @@
+Le problème :
+
+Vous devez organiser une conférence qui se tiendra à Londres (LHR) du 28 juillet au 3 août 2010
+Les 9 participants viennent respectivement de:
+Berlin (BER)
+Paris (CDG)
+Marseille (MRS)
+Lyon (LYS)
+Manchester (MAN)
+Bilbao (BIO)
+New York (JFK)
+Tunis (TUN)
+Milan (MXP)
+
+Info complémentaire :
+- Se déroule du 27 juillet à 18h00 au 3 août à 14h00
+- Tout le monde doit être présent à ces heures
+- Se tient à 50 kilomètres de Londres
+- Le trajet prend une heure aller, une heure retour
+- Un mini bus prend tout le monde à l’aller et au retour
+
+Les coûts sont de :
+- 1 € par kilomètre
+- 150 € si le véhicule est rendu avant 18h00
+- après 18h00, une pénalité de 100 € est appliquée.
+- Le loueur est à l’aéroport
+
+Trouver les meilleurs vols (allers et retours) afin que:
+Cela vous coûte le moins possible
+Les gens voyagent le moins de temps possible
+Le temps d’attente d’une personne soit le plus petit possible
+Une personne qui a beaucoup attendu à l’aller ne doit pas attendre beaucoup au retour

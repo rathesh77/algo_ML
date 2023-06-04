@@ -175,4 +175,4 @@ function recommandation(toby) {
 //console.log(pearson_correlation(critics["Lisa Rose"], critics["Gene Seymour"]));
 //console.log(pearson_correlation(critics["Lisa Rose"], critics["Michael Phillips"]));
 
-console.log(recommandation("Toby"));
+console.log(recommandation("Michael Phillips"));
