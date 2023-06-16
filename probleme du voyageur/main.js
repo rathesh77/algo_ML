@@ -33,7 +33,7 @@ async function parseXml(filename) {
 
 function cout(s1, s2) {}
 
-async function main() {
+async function generateSolutions() {
   const out = { aller: {}, retour: {} };
   let secondesDate27juillet18h = new Date("2010-07-27T18:00:00").getTime()/ 1000;
   let solutions = []
@@ -76,6 +76,35 @@ async function main() {
 }
   
   console.log(solutions)
+  return solutions
 }
 
-main();
+
+async function hillClimbing() {
+
+  const minSolutionsVoisines = function (begin, end, solutions) {
+    let min = Infinity
+    for (const solution of solutions.slice(begin, end)) {
+      if (solution.coutTotal < min) {
+        min = solution.coutTotal
+      }
+    }
+    return min
+  }
+
+  const solutions = await generateSolutions()
+  let i = 0
+  let bestSolution = Infinity
+  let steps = 10
+  for (;i < solutions.length; i+= steps) {
+    const min = minSolutionsVoisines(i, i + steps, solutions)
+    if (min < bestSolution) 
+      bestSolution = min
+    else 
+      break
+    i+= steps
+  }
+  return bestSolution
+}
+generateSolutions();
+hillClimbing()
