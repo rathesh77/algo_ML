@@ -102,7 +102,6 @@ async function hillClimbing() {
       bestSolution = min
     else 
       break
-    i+= steps
   }
   return bestSolution
 }
