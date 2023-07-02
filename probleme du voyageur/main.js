@@ -105,5 +105,29 @@ async function hillClimbing() {
   }
   return bestSolution
 }
-generateSolutions();
-hillClimbing()
+
+async function simulatedAnnealing() {
+  let temperature = 100000
+  let cool = 0.95
+  const solutions = await generateSolutions()
+  let highCost = solutions[0].coutTotal
+  let lowCost = highCost
+  let bestSolution = lowCost
+  for (let i = 1;i < solutions.length; i++) {
+    if (solutions[i].coutTotal < lowCost) {
+      const temp = lowCost
+      lowCost = solutions[i].coutTotal
+      highCost = temp
+      const probability = Math.pow(Math.exp(1), (-highCost-lowCost)/temperature )
+      if (probability > Math.random()) {
+        temperature *= cool
+        bestSolution = lowCost
+      }
+    }
+
+  }
+  return bestSolution
+}
+//generateSolutions();
+//hillClimbing()
+simulatedAnnealing()
