@@ -10,17 +10,6 @@ function randomIntFromInterval(min, max) { // min and max included
   return Math.floor(Math.random() * (max - min + 1) + min)
 }
 
-function parseXlsx(filename) {
-  if (!fs.existsSync(filename)) {
-    console.log("file " + filename + " doesnt exist");
-    return -1;
-  }
-  const workbook = XLSX.readFile(filename);
-  const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-  const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-  return jsonData;
-}
-
 async function parseXml() {
 
   let flights = {}
@@ -49,13 +38,13 @@ async function generateSolutions() {
     for (let i = 0; i < 9; i++) {
       const date = Math.random() > 0.5 ? '07-26' : '07-27'
       let type = 'aller'
-      const vol = fs.readdirSync(ROOT + "/" + date)[i]
-      const vols = flights[date][vol];
+      const nomVol = fs.readdirSync(ROOT + "/" + date)[i]
+      const vols = flights[date][nomVol];
       if (!solutions[k][type]) {
         solutions[k][type] = {}
-        solutions[k][type][vol] = []
-      } else if (!solutions[k][type][vol]) {
-        solutions[k][type][vol] = []
+        solutions[k][type][nomVol] = []
+      } else if (!solutions[k][type][nomVol]) {
+        solutions[k][type][nomVol] = []
       }
       let randVol = randomIntFromInterval(0, vols.length - 1)
       let cout = +vols[randVol].price.reduce((a, v) => +a + +v, 0);
@@ -64,20 +53,20 @@ async function generateSolutions() {
       let tempsDattenteAeroport = Math.abs(secondesDate27juillet18h - secondesDateArrivee)
       let tempsVol = secondesDateArrivee - secondesDateDepart
       coutTotal += cout + ((tempsDattenteAeroport / 60) * 10)
-      solutions[k][type][vol] = ({ 'vol': vols[randVol], tempsDattenteAeroport, cout, tempsVol })
+      solutions[k][type][nomVol] = ({ 'vol': vols[randVol], tempsDattenteAeroport, cout, tempsVol })
 
 
     }
     for (let i = 0; i < 9; i++) {
       const date = Math.random() > 0.5 ? '08-03' : '08-04'
       let type = 'retour'
-      const vol = fs.readdirSync(ROOT + "/" + date)[i]
-      const vols = flights[date][vol];
+      const nomVol = fs.readdirSync(ROOT + "/" + date)[i]
+      const vols = flights[date][nomVol];
       if (!solutions[k][type]) {
         solutions[k][type] = {}
-        solutions[k][type][vol] = []
-      } else if (!solutions[k][type][vol]) {
-        solutions[k][type][vol] = []
+        solutions[k][type][nomVol] = []
+      } else if (!solutions[k][type][nomVol]) {
+        solutions[k][type][nomVol] = []
       }
       let randVol = randomIntFromInterval(0, vols.length - 1)
       let cout = +vols[randVol].price.reduce((a, v) => +a + +v, 0);
@@ -86,7 +75,7 @@ async function generateSolutions() {
       let tempsDattenteAeroport = Math.abs(secondesDate27juillet18h - secondesDateArrivee)
       let tempsVol = secondesDateArrivee - secondesDateDepart
       coutTotal += cout + ((tempsDattenteAeroport / 60) * 10)
-      solutions[k][type][vol] = ({ 'vol': vols[randVol], tempsDattenteAeroport, cout, tempsVol })
+      solutions[k][type][nomVol] = ({ 'vol': vols[randVol], tempsDattenteAeroport, cout, tempsVol })
 
 
     }
@@ -131,16 +120,14 @@ async function simulatedAnnealing() {
   let highCost = solutions[0].coutTotal
   let lowCost = highCost
   let bestSolution = lowCost
-  for (let i = 1;i < solutions.length && temperature > 0; i++) {
-    if (solutions[i].coutTotal < lowCost) {
+  for (let i = 1;i < solutions.length; i++) {
+    if (solutions[i].coutTotal < lowCost || Math.pow(Math.exp(1), ((-highCost-lowCost)/temperature) > Math.random())) {
       const temp = lowCost
+      if (solutions[i].coutTotal < lowCost )
       lowCost = solutions[i].coutTotal
       highCost = temp
-      const probability = Math.pow(Math.exp(1), ((-highCost-lowCost)/temperature ))
-      if (probability > Math.random() * 2) {
-        temperature *= cool
-        bestSolution = lowCost
-      }
+      temperature *= cool
+      bestSolution = lowCost
     }
 
   }
@@ -149,8 +136,8 @@ async function simulatedAnnealing() {
 let flights = null
 async function main () {
   flights = await parseXml()
-  await hillClimbing()
-  //await simulatedAnnealing()
+  //await hillClimbing()
+  await simulatedAnnealing()
 }
 //hillClimbing()
 main()
