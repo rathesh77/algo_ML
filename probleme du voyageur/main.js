@@ -35,51 +35,30 @@ async function generateSolutions() {
   for (let k = 0; k < nbSolutions; k++) {
     solutions.push({})
     let coutTotal = 0
-    for (let i = 0; i < 9; i++) {
-      const date = Math.random() > 0.5 ? '07-26' : '07-27'
-      let type = 'aller'
-      const nomVol = fs.readdirSync(ROOT + "/" + date)[i]
-      const vols = flights[date][nomVol];
-      if (!solutions[k][type]) {
-        solutions[k][type] = {}
-        solutions[k][type][nomVol] = []
-      } else if (!solutions[k][type][nomVol]) {
-        solutions[k][type][nomVol] = []
+    for (const type of ['aller', 'retour']) {
+      for (let i = 0; i < 9; i++) {
+        const date = type == 'aller' ? (Math.random() > 0.5 ? '07-26' : '07-27') : (Math.random() > 0.5 ? '08-03' : '08-04')
+
+        const nomVol = fs.readdirSync(ROOT + "/" + date)[i]
+        const vols = flights[date][nomVol];
+        if (!solutions[k][type]) {
+          solutions[k][type] = {}
+          solutions[k][type][nomVol] = []
+        } else if (!solutions[k][type][nomVol]) {
+          solutions[k][type][nomVol] = []
+        }
+        let randVol = randomIntFromInterval(0, vols.length - 1)
+        let cout = +vols[randVol].price.reduce((a, v) => +a + +v, 0);
+        let secondesDateDepart = new Date(vols[randVol].depart[0]).getTime() / 1000;
+        let secondesDateArrivee = new Date(vols[randVol].arrive[0]).getTime() / 1000;
+        let tempsDattenteAeroport = Math.abs(secondesDate27juillet18h - secondesDateArrivee)
+        let tempsVol = secondesDateArrivee - secondesDateDepart
+        coutTotal += cout + ((tempsDattenteAeroport / 60) * 10)
+        solutions[k][type][nomVol] = ({ 'vol': vols[randVol], tempsDattenteAeroport, cout, tempsVol })
+
+
       }
-      let randVol = randomIntFromInterval(0, vols.length - 1)
-      let cout = +vols[randVol].price.reduce((a, v) => +a + +v, 0);
-      let secondesDateDepart = new Date(vols[randVol].depart[0]).getTime() / 1000;
-      let secondesDateArrivee = new Date(vols[randVol].arrive[0]).getTime() / 1000;
-      let tempsDattenteAeroport = Math.abs(secondesDate27juillet18h - secondesDateArrivee)
-      let tempsVol = secondesDateArrivee - secondesDateDepart
-      coutTotal += cout + ((tempsDattenteAeroport / 60) * 10)
-      solutions[k][type][nomVol] = ({ 'vol': vols[randVol], tempsDattenteAeroport, cout, tempsVol })
-
-
     }
-    for (let i = 0; i < 9; i++) {
-      const date = Math.random() > 0.5 ? '08-03' : '08-04'
-      let type = 'retour'
-      const nomVol = fs.readdirSync(ROOT + "/" + date)[i]
-      const vols = flights[date][nomVol];
-      if (!solutions[k][type]) {
-        solutions[k][type] = {}
-        solutions[k][type][nomVol] = []
-      } else if (!solutions[k][type][nomVol]) {
-        solutions[k][type][nomVol] = []
-      }
-      let randVol = randomIntFromInterval(0, vols.length - 1)
-      let cout = +vols[randVol].price.reduce((a, v) => +a + +v, 0);
-      let secondesDateDepart = new Date(vols[randVol].depart[0]).getTime() / 1000;
-      let secondesDateArrivee = new Date(vols[randVol].arrive[0]).getTime() / 1000;
-      let tempsDattenteAeroport = Math.abs(secondesDate27juillet18h - secondesDateArrivee)
-      let tempsVol = secondesDateArrivee - secondesDateDepart
-      coutTotal += cout + ((tempsDattenteAeroport / 60) * 10)
-      solutions[k][type][nomVol] = ({ 'vol': vols[randVol], tempsDattenteAeroport, cout, tempsVol })
-
-
-    }
-    
     solutions[k]['coutTotal'] = coutTotal
   }
 
@@ -114,23 +93,31 @@ async function hillClimbing() {
 }
 
 async function simulatedAnnealing() {
-  let temperature = 100000
-  let cool = 0.95
+  let temperature = 1000000
+  const cool = 0.95
+
   const solutions = await generateSolutions()
+
   let highCost = solutions[0].coutTotal
   let lowCost = highCost
   let bestSolution = lowCost
-  for (let i = 1;i < solutions.length; i++) {
-    if (solutions[i].coutTotal < lowCost || Math.pow(Math.exp(1), ((-highCost-lowCost)/temperature) > Math.random())) {
+  let maxStep = 10000
+  let step = 1
+
+  while (step <= maxStep && temperature > 100) {
+
+    let neighborIndex = randomIntFromInterval(0, solutions.length - 1)
+    if (solutions[neighborIndex].coutTotal < lowCost || Math.pow(Math.exp(1), ((-highCost-lowCost)/temperature)) > Math.random()) {
       const temp = lowCost
-      if (solutions[i].coutTotal < lowCost )
-      lowCost = solutions[i].coutTotal
+      lowCost = solutions[neighborIndex].coutTotal
       highCost = temp
       temperature *= cool
       bestSolution = lowCost
     }
 
+    step++
   }
+
   return bestSolution
 }
 let flights = null
