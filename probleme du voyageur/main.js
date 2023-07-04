@@ -70,9 +70,12 @@ async function generateSolutions() {
 
 async function hillClimbing() {
 
-  const minSolutionsVoisines = function (begin, end, solutions) {
+  const minSolutionsVoisines = function (solutions) {
     let min = {coutTotal: Infinity}
-    for (const solution of solutions.slice(begin, end)) {
+    let a = randomIntFromInterval(0, solutions.length-2)
+    let b = randomIntFromInterval(a+1, solutions.length-1)
+
+    for (const solution of solutions.slice(a, b + 1)) {
       if (solution.coutTotal < min.coutTotal) {
         min = solution
       }
@@ -82,10 +85,9 @@ async function hillClimbing() {
 
   const solutions = await generateSolutions()
   let bestSolution = {coutTotal: Infinity}
-  let i = 0
-  let steps = 10
-  for (;i < solutions.length; i+= steps) {
-    const min = minSolutionsVoisines(i, i + steps, solutions)
+
+  while (1) {
+    const min = minSolutionsVoisines(solutions)
     if (min.coutTotal >= bestSolution.coutTotal) 
       return bestSolution
     bestSolution = min
@@ -122,10 +124,9 @@ async function simulatedAnnealing() {
   return bestSolution
 }
 async function main() {
-let res = null
-//res = await hillClimbing()
-res = simulatedAnnealing()
-console.log('end')
+  let res1 = await hillClimbing()
+  let res2 = await simulatedAnnealing()
+  console.log('end')
 }
 
 main()
