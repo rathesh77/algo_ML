@@ -32,6 +32,8 @@ async function generateSolutions() {
   let secondesDate27juillet18h = new Date("2010-07-27T18:00:00").getTime() / 1000;
   let solutions = []
   const nbSolutions = 4000;
+  const flights = await parseXml()
+
   for (let k = 0; k < nbSolutions; k++) {
     solutions.push({})
     let coutTotal = 0
@@ -69,25 +71,24 @@ async function generateSolutions() {
 async function hillClimbing() {
 
   const minSolutionsVoisines = function (begin, end, solutions) {
-    let min = Infinity
+    let min = {coutTotal: Infinity}
     for (const solution of solutions.slice(begin, end)) {
-      if (solution.coutTotal < min) {
-        min = solution.coutTotal
+      if (solution.coutTotal < min.coutTotal) {
+        min = solution
       }
     }
     return min
   }
 
   const solutions = await generateSolutions()
+  let bestSolution = {coutTotal: Infinity}
   let i = 0
-  let bestSolution = Infinity
   let steps = 10
   for (;i < solutions.length; i+= steps) {
     const min = minSolutionsVoisines(i, i + steps, solutions)
-    if (min < bestSolution) 
-      bestSolution = min
-    else 
-      break
+    if (min.coutTotal >= bestSolution.coutTotal) 
+      return bestSolution
+    bestSolution = min
   }
   return bestSolution
 }
@@ -98,7 +99,7 @@ async function simulatedAnnealing() {
 
   const solutions = await generateSolutions()
 
-  let highCost = solutions[0].coutTotal
+  let highCost = solutions[0]
   let lowCost = highCost
   let bestSolution = lowCost
   let maxStep = 10000
@@ -107,9 +108,9 @@ async function simulatedAnnealing() {
   while (step <= maxStep && temperature > 100) {
 
     let neighborIndex = randomIntFromInterval(0, solutions.length - 1)
-    if (solutions[neighborIndex].coutTotal < lowCost || Math.pow(Math.exp(1), ((-highCost-lowCost)/temperature)) > Math.random()) {
+    if (solutions[neighborIndex].coutTotal < lowCost.coutTotal || Math.pow(Math.exp(1), ((-highCost.coutTotal-lowCost.coutTotal)/temperature)) > Math.random()) {
       const temp = lowCost
-      lowCost = solutions[neighborIndex].coutTotal
+      lowCost = solutions[neighborIndex]
       highCost = temp
       temperature *= cool
       bestSolution = lowCost
@@ -120,11 +121,11 @@ async function simulatedAnnealing() {
 
   return bestSolution
 }
-let flights = null
-async function main () {
-  flights = await parseXml()
-  //await hillClimbing()
-  await simulatedAnnealing()
+async function main() {
+let res = null
+//res = await hillClimbing()
+res = simulatedAnnealing()
+console.log('end')
 }
-//hillClimbing()
+
 main()
