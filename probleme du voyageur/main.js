@@ -101,7 +101,7 @@ async function hillClimbing() {
 }
 
 async function simulatedAnnealing() {
-  let temperature = 1000000
+  let temperature = 10000
   const cool = 0.95
 
   const solutions = await generateSolutions()
