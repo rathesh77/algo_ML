@@ -25,7 +25,18 @@ async function parseXml() {
   return vols;
 }
 
+/*  
+Cette fonction generate un tableau multidimensionnel de 4000 elements de la forme 
+[
+  {
+    aller: {'BER-LHR.txt': {'vol': {}, 'cout': <int>, 'tempsDattenteAeroport': <int>, 'tempsVol': <int> }...}
+    retour: {'LHR-BER.txt': {'vol': {}, 'cout': <int>, 'tempsVol': <int> }...}
+  }
+  ...
+]
+ */
 async function genererSolutions() {
+
   const out = { aller: {}, retour: {} };
   let solutions = []
   const nbSolutions = 4000;
@@ -69,6 +80,7 @@ async function genererSolutions() {
       solutions[i].aller[vols[j]].tempsDattenteAeroport = (maxArriveeAeroport - solutions[i].aller[vols[j]].secondesDateArrivee) / 1000
       solutions[i].coutTotal += (solutions[i].aller[vols[j]].tempsDattenteAeroport / 60) >= 30 ? ((solutions[i].aller[vols[j]].tempsDattenteAeroport / 60) * 2) : 0
       delete solutions[i].aller[vols[j]].secondesDateArrivee
+
     }
   }
 
@@ -134,6 +146,11 @@ async function simulatedAnnealing() {
 
 async function geneticAlgorithm() {
 
+  const solutions = (await genererSolutions()).sort((a, b) => a.coutTotal > b.coutTotal)
+  const n = 1200
+  const nextGeneration = solutions.slice(0, n)
+
+  // PAS FINI
 }
 
 async function main() {
