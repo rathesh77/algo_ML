@@ -34,6 +34,7 @@ async function generateSolutions() {
   const nbSolutions = 4000;
   const flights = await parseXml()
 
+  let maxArriveeAeroport = -Infinity
   for (let k = 0; k < nbSolutions; k++) {
     solutions.push({})
     let coutTotal = 0
@@ -50,18 +51,22 @@ async function generateSolutions() {
           solutions[k][type][nomVol] = []
         }
         let randVol = randomIntFromInterval(0, vols.length - 1)
-        let cout = +vols[randVol].price.reduce((a, v) => +a + +v, 0);
-        let secondesDateDepart = new Date(vols[randVol].depart[0]).getTime() / 1000;
+        let cout = +vols[randVol].price.reduce((a, v) => +a + +v, 0);        let secondesDateDepart = new Date(vols[randVol].depart[0]).getTime() / 1000;
         let secondesDateArrivee = new Date(vols[randVol].arrive[0]).getTime() / 1000;
-        let tempsDattenteAeroport = Math.abs(secondesDate27juillet18h - secondesDateArrivee)
         let tempsVol = secondesDateArrivee - secondesDateDepart
-        coutTotal += cout + ((tempsDattenteAeroport / 60) * 10)
-        solutions[k][type][nomVol] = ({ 'vol': vols[randVol], tempsDattenteAeroport, cout, tempsVol })
-
-
+        if (secondesDateArrivee > maxArriveeAeroport)
+          maxArriveeAeroport = secondesDateArrivee
+        coutTotal += cout
+        solutions[k][type][nomVol] = ({ 'vol': vols[randVol], cout, tempsVol, secondesDateArrivee })
       }
     }
     solutions[k]['coutTotal'] = coutTotal
+  }
+  for (let i = 0; i < solutions.length; i++) {
+    for (let j = 0; j < solutions[i].aller.length; j++) {
+      solutions[i].aller[j].tempsDattenteAeroport = maxArriveeAeroport - solutions[i].aller[j].secondesDateArrivee
+      solutions[i].coutTotal += ((solutions[i].aller[j].tempsDattenteAeroport / 60) * 10)
+    }
   }
 
   return solutions
