@@ -48,7 +48,8 @@ async function genererSolutions() {
           solutions[k][type][nomVol] = []
         }
         let randVol = entierAleatoireEntre(0, vols.length - 1)
-        let cout = +vols[randVol].price.reduce((a, v) => +a + +v, 0);        let secondesDateDepart = new Date(vols[randVol].depart[0]).getTime() / 1000;
+        let cout = +vols[randVol].price.reduce((a, v) => +a + +v, 0);
+        let secondesDateDepart = new Date(vols[randVol].depart[0]).getTime() / 1000;
         let secondesDateArrivee = new Date(vols[randVol].arrive[0]).getTime() / 1000;
         let tempsVol = secondesDateArrivee - secondesDateDepart
         if (type == 'aller' && secondesDateArrivee > maxArriveeAeroport)
